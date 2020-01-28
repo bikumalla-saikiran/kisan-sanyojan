@@ -8,10 +8,15 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -27,6 +32,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.io.IOException;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -34,6 +44,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LocationListener {
 
     private GoogleMap mMap;
+    GoogleMap map;
     private GoogleApiClient client;
     private LocationRequest locationRequest;
     private Location lastlocation;
@@ -98,6 +109,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
         }
 
+
+    }
+    public void onClick(View v)
+    {
+        if(v.getId()==R.id.B_search)
+        {
+            EditText tf_location =  findViewById(R.id.TF_location);
+            String location = tf_location.getText().toString();
+            List<Address> addressList=null;
+            MarkerOptions mo=new MarkerOptions();
+            if(!location.equals(""))
+            {
+                Geocoder geocoder=new Geocoder(this);
+                try {
+                    addressList=geocoder.getFromLocationName(location,5);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                for(int i=0;i<addressList.size();i++)
+                {
+                    Address myAdress =addressList.get(i);
+                    LatLng latlng=new LatLng(myAdress.getLatitude(),myAdress.getLongitude());
+                    mo.position(latlng);
+                    mo.title("your search result");
+                    mMap.addMarker(mo);
+
+                }
+            }
+        }
 
     }
  protected synchronized void buildGoogleApiClient(){
